@@ -1,27 +1,36 @@
 import java.util.Map;
-import java.time.LocalDate; 
+import java.time.LocalDate;
+/*import java.net.URL;
+import java.net.URLConnection;
+import java.net.HttpURLConnection;*/
+import controlP5.*;
 
+ControlP5 cp5;
 PShape eu;
 Table table;
 Table dataTable;
-float dataMin = MAX_FLOAT;
-float dataMax = MIN_FLOAT;
+LocalDate dateMin;
+LocalDate dateMax;
 PShape currentCountry;
 HashMap<String, ListElement> list = new HashMap<String, ListElement>();
+String url = "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv";
 
 void setup(){
  size(1024, 768);
  eu = loadShape("eu.svg");
  
- table = loadTable("owid-covid-data.csv", "header");
+ table = loadTable("owid-covid-data2.csv", "header");
  
  for (TableRow row : table.rows()) {
    if(row.getString("continent").equals("Europe")){
+     LocalDate currentDate = LocalDate.parse(row.getString("date"));
+     checkDateRange(currentDate);
+     
      if(!list.containsKey(row.getString("iso_code"))){
        list.put(row.getString("iso_code"), new ListElement(row.getString("location")));
      }
      list.get(row.getString("iso_code")).addNewData(new DataElement(
-     row.getString("date"),
+     currentDate,
      int(row.getString("new_cases")),
      int(row.getString("total_cases")),
      int(row.getString("new_deaths")),
@@ -31,8 +40,14 @@ void setup(){
  }
  
  for (Map.Entry<String, ListElement> l : list.entrySet()) {
-    println(l.getValue().getLocation());
-  }
+   String min = l.getValue().getDataOnDate(dateMin);
+   String max = l.getValue().getDataOnDate(dateMax);
+   if(min.length() > 0) println(min);
+   if(max.length() > 0) println(max);
+ }
+ 
+ /*println(dateMin.toString());
+ println(dateMax.toString());*/
   
 }
 
@@ -83,9 +98,14 @@ class ListElement {
     return location;
   }
   
-  /*String toString(){
-    return data.get(100).toString();
-  }*/
+  String getDataOnDate(LocalDate date){
+    for(DataElement d : data){
+      if(d.getDate().equals(date)){
+        return location + " --> " + d.toString(); 
+      }
+    }
+    return "";
+  }
   
 }
 
@@ -96,16 +116,34 @@ class DataElement{
   int newDeaths;
   int totalDeaths;
   
-  DataElement(String d, int nc, int tc, int nd, int td){
-    date = LocalDate.parse(d);
+  DataElement(LocalDate d, int nc, int tc, int nd, int td){
+    date = d;
     newCases = nc;
     totalCases = tc;
     newDeaths = nd;
     totalDeaths = td;
   }
   
-  String toString(){
-    return date + "Uj esetek: " + str(newCases) + ", Halottak: " + str(newDeaths);
+  LocalDate getDate(){
+    return date;
   }
   
+  String toString(){
+    return date + " Új esetek: " + str(newCases) + ", Halottak: " + str(newDeaths);
+  }
+  
+}
+
+void checkDateRange(LocalDate d){
+  if(dateMin == null || dateMax == null){
+    dateMin = d;
+    dateMax = d;
+  }else{
+    if(d.isBefore(dateMin)){
+      dateMin = d;
+    }
+    if(d.isAfter(dateMax)){
+      dateMax = d;
+    }
+  }
 }
