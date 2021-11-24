@@ -3,24 +3,64 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import controlP5.*;
 
-ControlP5 cp5;
 PShape eu;
+
 Table table;
-Table dataTable;
-LocalDate dateMin;
-LocalDate dateMax;
-LocalDate dateSelected;
-PShape currentCountry;
 HashMap<String, ListElement> list = new HashMap<String, ListElement>();
 String url = "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv";
 
-int slider = 0;
+LocalDate dateMin;
+LocalDate dateMax;
+LocalDate dateSelected;
+
+ControlP5 cp5;
+
+PShape currentCountry;
+
+BounderValues bv;
 
 void setup() {
     size(1024, 768);
     eu = loadShape("eu.svg");
     
-    table = loadTable("owid-covid-data2.csv", "header");
+    loadCovidData();
+    addControllersToPanel();
+}
+
+void draw() {
+    background(220);
+    
+    shape(eu, 462, 248, 562, 520);
+    smooth();
+    fill(192, 0, 0);
+    noStroke();
+    
+    for (Map.Entry <String, ListElement> l : list.entrySet()) {
+        String key = l.getKey().toString();
+        currentCountry = eu.getChild(key);
+        if (currentCountry != null) {
+            currentCountry.disableStyle();
+            strokeWeight(1);
+            stroke(0);
+            
+            int min = 0;
+            int max = bv.getMaxNewCasesPerMillion();
+
+            float percent = norm(
+                l.getValue().getDataOnDate(dateSelected).getNewCasesPerMillion(), 
+                min, 
+                max
+            );
+            color between = lerpColor(#FFFFFF, #EC5166, percent);   
+            fill(between);
+            
+            shape(currentCountry, 462, 248, 562, 520);
+        }
+    }
+}
+
+void loadCovidData(){
+    table = loadTable("owid-covid-data.csv", "header");
     
     for (TableRow row : table.rows()) {
         if (row.getString("continent").equals("Europe")) {
@@ -42,135 +82,11 @@ void setup() {
                 int(row.getString("total_deaths_per_million"))
                ));
         }
-        
     }
     
     dateSelected = dateMin;
-    
-    
-    cp5 = new ControlP5(this);
-    
-    cp5.addSlider("slider")
-       .setPosition(50,50)
-       .setSize(500, 25)
-       .setLabel("Datum")
-       .setValueLabel(dateMin.plusDays(int(cp5.getController("slider").getValue())).toString())
-       .setValue(slider)
-        //.setNumberOfTickMarks((int)ChronoUnit.MONTHS.between(dateMin, dateMax))
-       .setRange(0, int(ChronoUnit.DAYS.between(dateMin, dateMax)))
-       .onChange(new CallbackListener() {
-        public void controlEvent(CallbackEvent theEvent) {
-            theEvent.getController().setValueLabel(dateMin.plusDays(int(theEvent.getController().getValue())).toString());
-            dateSelected = dateMin.plusDays(int(theEvent.getController().getValue()));
-        }
-    }
-   );
-    
-    cp5.getController("slider").setValueLabel(dateMin.plusDays(int(cp5.getController("slider").getValue())).toString());
-    cp5.getController("slider").getValueLabel().align(ControlP5.LEFT, ControlP5.TOP_OUTSIDE).setPaddingX(0).setSize(12).setColor(0);
-    cp5.getController("slider").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.TOP_OUTSIDE).setPaddingX(0).setSize(12).setColor(0);
-    
-    
-    cp5.addButton("OK")
-       .setPosition(50,100)
-       .setSize(250,25)
-       .onClick(new CallbackListener() {
-        public void controlEvent(CallbackEvent theEvent) {
-            printSelectedDate(dateSelected);
-        }
-    });
 
-}
-
-void draw() {
-    background(220);
-    
-    shape(eu, 462, 248, 562, 520);
-    smooth();
-    fill(192, 0, 0);
-    noStroke();
-    
-    int index = 0;
-    for (Map.Entry l : list.entrySet()) {
-        String key = l.getKey().toString();
-        currentCountry = eu.getChild(key);
-        if (currentCountry != null) {
-            currentCountry.disableStyle();
-            if (index % 2 == 0) {
-                fill(#333366);
-            } else{
-                fill(#EC5166);
-            }
-            shape(currentCountry, 462, 248, 562, 520);
-            index++;
-        }
-    }
-}
-
-class ListElement { 
-    String location;
-    ArrayList<DataElement> data = new ArrayList<DataElement>();
-    
-    
-    ListElement(String l) {  
-        location = l;
-    } 
-    
-    void addNewData(DataElement de) { 
-        data.add(de);
-    }
-    
-    ArrayList<DataElement> getData() {
-        return data;
-    }
-    
-    String getLocation() {
-        return location;
-    }
-    
-    String getDataOnDate(LocalDate date) {
-        for (DataElement d : data) {
-            if (d.getDate().equals(date)) {
-                return location + " --> " + d.toString(); 
-            }
-        }
-        return "";
-    }
-    
-}
-
-class DataElement{
-    LocalDate date;
-    int newCases;
-    int newCasesPerMillion;
-    int totalCases;
-    int totalCasesPerMillion;
-    int newDeaths;
-    int newDeathsPerMillion;
-    int totalDeaths;
-    int totalDeathsPerMillion;
-    
-    
-    DataElement(LocalDate d, int nc, int ncpm, int tc, int tcpm, int nd, int ndpm, int td, int tdpm) {
-        date = d;
-        newCases = nc;
-        newCasesPerMillion = ncpm;
-        totalCases = tc;
-        totalCasesPerMillion = tcpm;
-        newDeaths = nd;
-        newDeathsPerMillion = ndpm;
-        totalDeaths = td;
-        totalDeathsPerMillion = tdpm;
-    }
-    
-    LocalDate getDate() {
-        return date;
-    }
-    
-    String toString() {
-        return date + " Uj esetek: " + str(newCases) + ", Halottak: " + str(newDeaths);
-    }
-    
+    calculateBounderValues(dateSelected);
 }
 
 void checkDateRange(LocalDate d) {
@@ -187,9 +103,73 @@ void checkDateRange(LocalDate d) {
     }
 }
 
+void addControllersToPanel(){
+    cp5 = new ControlP5(this);
+
+    cp5.addSlider("slider")
+       .setPosition(50,50)
+       .setSize(500, 25)
+       .setLabel("Dátum")
+       .setValue(0)
+       .setRange(0, int(ChronoUnit.DAYS.between(dateMin, dateMax)))
+       .setScrollSensitivity(0.01)
+       .onChange(new CallbackListener() {
+        public void controlEvent(CallbackEvent theEvent) {
+            theEvent.getController().setValueLabel(dateMin.plusDays(int(theEvent.getController().getValue())).toString());
+            dateSelected = dateMin.plusDays(int(theEvent.getController().getValue()));
+            calculateBounderValues(dateSelected);
+        }
+    }
+   );
+    
+    cp5.getController("slider").setValueLabel(dateMin.plusDays(int(cp5.getController("slider").getValue())).toString());
+    cp5.getController("slider").getValueLabel().align(ControlP5.LEFT, ControlP5.TOP_OUTSIDE).setPaddingX(0).setFont(createFont("Arial", 12)).setColor(0);
+    cp5.getController("slider").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.TOP_OUTSIDE).setPaddingX(0).setFont(createFont("Arial", 12)).setColor(0);
+    
+    cp5.addButton("OK")
+       .setPosition(50, 100)
+       .setSize(250, 25)
+       .setFont(createFont("Arial", 12))
+       .onClick(new CallbackListener() {
+        public void controlEvent(CallbackEvent theEvent) {
+            //dateSelected = dateMin.plusDays(int(cp5.getController("slider").getValue()));
+            //calculateBounderValues(dateSelected);
+            //printSelectedDate(dateSelected);
+        }
+    });
+
+}
+
 void printSelectedDate(LocalDate date) {
     println(date);
-    for (Map.Entry < String, ListElement > l : list.entrySet()) {
-        println(l.getValue().getDataOnDate(date));
+    /*for (Map.Entry <String, ListElement> l : list.entrySet()) {
+        println(l.getValue().getLocation() + ": " + l.getValue().getDataOnDate(date));
+    }*/
+    float percent = norm(
+                300, 
+                bv.getMinNewCasesPerMillion(), 
+               bv.getMaxNewCasesPerMillion()
+    );
+    println(bv.getMinNewCasesPerMillion());
+    println(bv.getMaxNewCasesPerMillion());
+    println(percent);
+}
+
+void calculateBounderValues(LocalDate date){
+    bv = new BounderValues();
+    
+    for (Map.Entry <String, ListElement> l : list.entrySet()) {
+        DataElement de = l.getValue().getDataOnDate(date);
+        
+        bv.compateToCurrent(
+            de.getNewCases(), 
+            de.getNewCasesPerMillion(), 
+            de.getTotalCases(), 
+            de.getTotalCasesPerMillion(), 
+            de.getNewDeaths(), 
+            de.getNewDeathsPerMillion(), 
+            de.getTotalDeaths(), 
+            de.getTotalDeathsPerMillion()
+        );
     }
 }
