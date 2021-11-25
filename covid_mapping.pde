@@ -27,23 +27,27 @@ int colorMin = 0;
 int colorMax = 0;
 
 int selectedFilter = 3;
-Set<String> selectedCountries = new LinkedHashSet<String>(); 
+//Set<String> selectedCountries = new LinkedHashSet<String>();
+ArrayList<ListElement> selectedCountries = new ArrayList<>();
+
+Plot plt;
+//ArrayList<ListElement> tmp = new ArrayList<>();
 
 void setup() {
-    size(1024, 768);
+    size(1366, 768);
     eu = loadShape("eu.svg");
     
     loadCovidData();
     addControllersToPanel();
-    println(colorMax);
     changeFilterHandler(selectedFilter);
-    println(colorMax);
+
+    plt = new Plot(0, 0, 780, 520);
 }
 
 void draw() {
     background(220);
     
-    shape(eu, 462, 0, 562, 520);
+    shape(eu, 804, 0, 562, 520);
     smooth();
     fill(192, 0, 0);
     noStroke();
@@ -55,7 +59,7 @@ void draw() {
             currentCountry.disableStyle();
 
             stroke(0);
-            if(currentCountry.contains((mouseX-462), mouseY)){
+            if(currentCountry.contains((mouseX-804), mouseY)){
               strokeWeight(2);
               cursor(HAND);
               txt.setText(l.getKey());
@@ -75,10 +79,11 @@ void draw() {
               }
             }
 
-            shape(currentCountry, 462, 0, 562, 520);
+            shape(currentCountry, 804, 0, 562, 520);
 
         }
     }
+    plt.draw(selectedCountries);
 }
 
 void loadCovidData(){
@@ -133,7 +138,7 @@ void addControllersToPanel(){
     cp5 = new ControlP5(this);
 
     slr = cp5.addSlider("slider")
-       .setPosition(462, 545)
+       .setPosition(804, 545)
        .setSize(540, 25)
        .setLabel("Dátum")
        .setValue(int(ChronoUnit.DAYS.between(dateMin, dateMax)))
@@ -152,7 +157,7 @@ void addControllersToPanel(){
     slr.getCaptionLabel().align(ControlP5.RIGHT, ControlP5.TOP_OUTSIDE).setPaddingX(0).setFont(createFont("Arial", 12)).setColor(0);
 
     flb = cp5.addListBox("flistbox")
-        .setPosition(462, 575)
+        .setPosition(804, 575)
         .setSize(540, 200)
         .setDefaultValue(3)
         .onChange(new CallbackListener() {
@@ -184,21 +189,21 @@ void addControllersToPanel(){
     txt = cp5.addTextarea("txt")
         .setColorValue(#FFFFFF)
         .setSize(50, 30)
-        .setPosition(974, 480)
+        .setPosition(1316, 480)
         .setFont(createFont("Arial",12))
         .setColorBackground(#002d5a)
         .setLineHeight(14);
 
     slb = cp5.addListBox("slistbox")
-         .setPosition(50, 50)
+         .setPosition(430, 540)
          .setLabel("Kiválasztva:")
          .setFont(createFont("Arial",12))
-         .setSize(120, 100)
+         .setSize(250, 250)
          .setItemHeight(30)
          .setBarHeight(30);
     
     btn = cp5.addButton("clear")
-        .setPosition(170, 50)
+        .setPosition(680, 540)
         .setLabel("Törlés")
         .setFont(createFont("Arial",12))
         .setSize(70, 30)
@@ -281,89 +286,37 @@ void changeFilterHandler(int numOfFilter){
 float calculatePercent(int numOfFilter, DataElement de){
   switch(numOfFilter){
     case 0:
-      return norm(
-          de.getNewCases(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewCases(), colorMin, colorMax);
     case 1:
-      return norm(
-          de.getNewCasesSmoothed(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewCasesSmoothed(), colorMin, colorMax);
     case 2:
-      return norm(
-          de.getNewCasesPerMillion(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewCasesPerMillion(), colorMin, colorMax);
     case 3:
-      return norm(
-          de.getNewCasesSmoothedPerMillion(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewCasesSmoothedPerMillion(), colorMin, colorMax);
     case 4:
-      return norm(
-          de.getTotalCases(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getTotalCases(), colorMin, colorMax);
     case 5:
-      return norm(
-          de.getTotalCasesPerMillion(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getTotalCasesPerMillion(), colorMin, colorMax);
     case 6:
-      return norm(
-          de.getNewDeaths(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewDeaths(),colorMin, colorMax);
     case 7:
-      return norm(
-          de.getNewDeathsSmoothed(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewDeathsSmoothed(), colorMin, colorMax);
     case 8:
-      return norm(
-          de.getNewDeathsPerMillion(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewDeathsPerMillion(), colorMin,colorMax);
     case 9:
-      return norm(
-          de.getNewDeathsSmoothedPerMillion(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewDeathsSmoothedPerMillion(),colorMin, colorMax);
     case 10:
-      return norm(
-          de.getTotalDeaths(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getTotalDeaths(), colorMin, colorMax);
     case 11:
-      return norm(
-          de.getTotalDeathsPerMillion(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getTotalDeathsPerMillion(), colorMin, colorMax);
     default:
-      return norm(
-          de.getNewCasesSmoothedPerMillion(), 
-          colorMin, 
-          colorMax
-      );
+      return norm(de.getNewCasesSmoothedPerMillion(), colorMin, colorMax);
   }
 }
 
 void selectCountryHandler(String countryID){
-  if(selectedCountries.size() < 2 && !selectedCountries.contains(countryID)){
-    selectedCountries.add(countryID);
+  if(selectedCountries.size() < 4 && !selectedCountries.contains(list.get(countryID))){
+    selectedCountries.add(list.get(countryID));
     slb.addItem(countryID, selectedCountries.size()-1);
     slb.open();
   }

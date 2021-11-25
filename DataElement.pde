@@ -1,3 +1,6 @@
+import java.util.*;
+import java.time.LocalDate;
+
 public class DataElement{
     private LocalDate date;
     private int newCases;

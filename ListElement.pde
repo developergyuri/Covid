@@ -1,5 +1,9 @@
+import java.util.*;
+import java.time.LocalDate;
+
 public class ListElement { 
     private String location;
+    private LocalDate startDate = LocalDate.now();;
     private ArrayList<DataElement> data = new ArrayList<DataElement>();
     
     
@@ -8,6 +12,7 @@ public class ListElement {
     } 
     
     public void addNewData(DataElement de) { 
+        if(startDate.isAfter(de.getDate())) startDate = de.getDate();
         data.add(de);
     }
     
@@ -17,6 +22,10 @@ public class ListElement {
     
     public String getLocation() {
         return location;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
     public DataElement getDataOnDate(LocalDate date) {
