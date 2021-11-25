@@ -86,7 +86,8 @@ void draw() {
 }
 
 void loadCovidData(){
-    table = loadTable("owid-covid-data.csv", "header");
+    //table = loadTable("owid-covid-data.csv", "header");
+    table = loadTable(url, "header");
     
     for (TableRow row : table.rows()) {
         if (row.getString("continent").equals("Europe")) {
@@ -194,7 +195,7 @@ void addControllersToPanel(){
         .setLineHeight(14);
 
     slb = cp5.addListBox("slistbox")
-         .setPosition(430, 540)
+         .setPosition(460, 540)
          .setLabel("Kiválasztva:")
          .setFont(createFont("Arial",12))
          .setSize(250, 250)
@@ -202,7 +203,7 @@ void addControllersToPanel(){
          .setBarHeight(30);
     
     btn = cp5.addButton("clear")
-        .setPosition(680, 540)
+        .setPosition(710, 540)
         .setLabel("Törlés")
         .setFont(createFont("Arial",12))
         .setSize(70, 30)
