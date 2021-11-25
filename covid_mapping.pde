@@ -40,7 +40,6 @@ void setup() {
     loadCovidData();
     addControllersToPanel();
     changeFilterHandler(selectedFilter);
-
     plt = new Plot(0, 0, 780, 520);
 }
 
@@ -83,7 +82,7 @@ void draw() {
 
         }
     }
-    plt.draw(selectedCountries);
+    plt.draw(selectedCountries, selectedFilter);
 }
 
 void loadCovidData(){

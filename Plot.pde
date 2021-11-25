@@ -19,8 +19,70 @@ public class Plot{
         width = float(w);
         height = float(h);
     }
+    
+    int calculateMaxToFilter(int numOfFilter){
+      switch(numOfFilter){
+        case 0:
+          return bv.getMaxNewCases();
+        case 1:
+          return bv.getMaxNewCasesSmoothed();
+        case 2:
+          return bv.getMaxNewCasesPerMillion();
+        case 3:
+          return bv.getMaxNewCasesSmoothedPerMillion();
+        case 4:
+          return bv.getMaxTotalCases();
+        case 5:
+          return bv.getMaxTotalCasesPerMillion();
+        case 6:
+          return bv.getMaxNewDeaths();
+        case 7:
+          return bv.getMaxNewDeathsSmoothed();
+        case 8:
+          return bv.getMaxNewDeathsPerMillion();
+        case 9:
+          return bv.getMaxNewDeathsSmoothedPerMillion();
+        case 10:
+          return bv.getMaxTotalDeaths();
+        case 11:
+          return bv.getMaxTotalDeathsPerMillion();
+        default:
+          return bv.getMaxNewCasesSmoothedPerMillion();
+      }
+    }
+    
+    int calculateValueToFilter(DataElement de, int numOfFilter){
+      switch(numOfFilter){
+        case 0:
+          return de.getNewCases();
+        case 1:
+          return de.getNewCasesSmoothed();
+        case 2:
+          return de.getNewCasesPerMillion();
+        case 3:
+          return de.getNewCasesSmoothedPerMillion();
+        case 4:
+          return de.getTotalCases();
+        case 5:
+          return de.getTotalCasesPerMillion();
+        case 6:
+          return de.getNewDeaths();
+        case 7:
+          return de.getNewDeathsSmoothed();
+        case 8:
+          return de.getNewDeathsPerMillion();
+        case 9:
+          return de.getNewDeathsSmoothedPerMillion();
+        case 10:
+          return de.getTotalDeaths();
+        case 11:
+          return de.getTotalDeathsPerMillion();
+        default:
+          return de.getNewCasesSmoothedPerMillion();
+      }
+    }
 
-    public void draw(ArrayList<ListElement> list){
+    public void draw(ArrayList<ListElement> list, int selectedFilter){
         bv = new BounderValues();
 
         for (ListElement l : list) {
@@ -43,7 +105,7 @@ public class Plot{
             if(minDate.isAfter(l.getStartDate())) minDate = l.getStartDate();
         }
         
-        max = bv.getMaxNewCasesSmoothedPerMillion();
+        max = calculateMaxToFilter(selectedFilter);
       
         fill(255);
         noStroke();
@@ -56,9 +118,9 @@ public class Plot{
         strokeWeight(2);
         stroke(0);
         // X-tengely
-        line(xPos, yPos + (height * 2/3), xPos + width - padding, yPos + (height * 2/3));
+        line(xPos, yPos + (height * 2/3), xPos + width, yPos + (height * 2/3));
         // Y-tengely
-        line(xPos + (padding / 2), yPos, xPos + (padding / 2), yPos + height);
+        line(xPos + (padding / 2), yPos + (padding / 2), xPos + (padding / 2), yPos + height - (padding / 2));
         
         
         // Havi tengely jelölések
@@ -67,11 +129,11 @@ public class Plot{
         int numOfMonths = int(ChronoUnit.MONTHS.between(minDate, LocalDate.now()));
         numOfMonths = numOfMonths > 0 ? numOfMonths + 1 : numOfMonths;
         
-        for(int m = 0; m < numOfMonths; m++){
-          line(xPos + (width / numOfMonths) * m + padding, (height * 2/3) - 5, xPos + (width / numOfMonths) * m + padding, (height * 2/3) + 5);
+        for(int m = 1; m < numOfMonths; m++){
+          line(xPos + (width / numOfMonths) * m, (height * 2/3) - 5, xPos + (width / numOfMonths) * m, (height * 2/3) + 5);
           
           pushMatrix();
-          translate(xPos + (width / numOfMonths) * m + padding, (height * 2/3));
+          translate(xPos + (width / numOfMonths) * m, (height * 2/3));
           rotate(-HALF_PI);
           fill(0);
           textSize(16);
@@ -80,10 +142,11 @@ public class Plot{
         }
         
         // Érték tengely jelölések
-        int numOfValues = 15;
-        for(int v = 0; v <  numOfValues; v++){
-          line(xPos + (padding * (1.0 / 4)), yPos + (v * (height / numOfValues)), xPos + (padding * (3.0 / 4)), yPos + (v * (height / numOfValues)));
-          text(str(max - ((max / numOfValues) * v)), xPos + padding, yPos + (v * (height / numOfValues)) + 7);
+        int numOfTick= 15;
+        int numOfValues = 10;
+        for(int t = 0; t <  numOfTick; t++){
+          line(xPos + (padding * (1.0 / 4)), yPos + (padding / 2) + (t * (height / numOfTick)), xPos + (padding * (3.0 / 4)), yPos + (padding / 2) + (t * (height / numOfTick)));
+          if(t < numOfValues) text(str(max - ((max / numOfValues) * t)), xPos + padding, yPos + (padding / 2) + (t * (height / numOfTick)) + 7);
         }
         
         int numOfPoints = int(ChronoUnit.DAYS.between(minDate, LocalDate.now()));
@@ -108,7 +171,7 @@ public class Plot{
             
             for(int j = 0; j < numOfPoints; j++){
                 DataElement cd = l.getDataOnDate(minDate.plusDays(j));
-                int value = cd.getNewCasesSmoothedPerMillion();
+                int value = calculateValueToFilter(cd, selectedFilter);
 
                 float pointXPos = xPos + padding + (pointWidth * j);
                 float pointYPos = (yPos + (height * 2/3)) - (pointHeight * value);
