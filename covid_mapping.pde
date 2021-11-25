@@ -1,4 +1,4 @@
-import java.util.Map;
+import java.util.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import controlP5.*;
@@ -17,7 +17,9 @@ LocalDate dateSelected;
 
 ControlP5 cp5;
 Slider slr;
-DropdownList dpd;
+ListBox flb;
+Textarea txt;
+ListBox slb;
 Button btn;
 
 BounderValues bv;
@@ -25,8 +27,7 @@ int colorMin = 0;
 int colorMax = 0;
 
 int selectedFilter = 3;
-
-String label = "";
+Set<String> selectedCountries = new LinkedHashSet<String>(); 
 
 void setup() {
     size(1024, 768);
@@ -57,12 +58,17 @@ void draw() {
             if(currentCountry.contains((mouseX-462), mouseY)){
               strokeWeight(2);
               cursor(HAND);
+              txt.setText(l.getKey());
               fill(#002d5a);
+
+              if (mousePressed == true) {
+                selectCountryHandler(l.getKey());
+              }
             }else{
               strokeWeight(1);
               if(colorMax != 0){
                 float percent = calculatePercent(selectedFilter, l.getValue().getDataOnDate(dateSelected));                 
-                color between = lerpColor(#FFFFFF, #EC5166, percent);   
+                color between = lerpColor(#FFFFFF, #DC4250, percent);   
                 fill(between);
               }else{
                   fill(#FFFFFF);
@@ -130,7 +136,7 @@ void addControllersToPanel(){
        .setPosition(462, 545)
        .setSize(540, 25)
        .setLabel("Dátum")
-       .setValue(0)
+       .setValue(int(ChronoUnit.DAYS.between(dateMin, dateMax)))
        .setRange(0, int(ChronoUnit.DAYS.between(dateMin, dateMax)))
        .setScrollSensitivity(0.01)
        .onChange(new CallbackListener() {
@@ -145,36 +151,64 @@ void addControllersToPanel(){
     slr.getValueLabel().align(ControlP5.LEFT, ControlP5.TOP_OUTSIDE).setPaddingX(0).setFont(createFont("Arial", 12)).setColor(0);
     slr.getCaptionLabel().align(ControlP5.RIGHT, ControlP5.TOP_OUTSIDE).setPaddingX(0).setFont(createFont("Arial", 12)).setColor(0);
 
-    dpd = cp5.addDropdownList("dropdown")
+    flb = cp5.addListBox("flistbox")
         .setPosition(462, 575)
         .setSize(540, 200)
         .setDefaultValue(3)
         .onChange(new CallbackListener() {
-            public void controlEvent(CallbackEvent theEvent) {
-              selectedFilter = int(theEvent.getController().getValue());
-              changeFilterHandler(int(theEvent.getController().getValue()));
-            }
-          });
+          public void controlEvent(CallbackEvent theEvent) {
+            selectedFilter = int(theEvent.getController().getValue());
+            changeFilterHandler(int(theEvent.getController().getValue()));
+          }
+        });
     
-    dpd.setBarHeight(30);
-    dpd.getCaptionLabel().set("Szűrő").setFont(createFont("Arial", 10)).setColor(255);
-    dpd.setItemHeight(30);
-    dpd.getValueLabel().setFont(createFont("Arial", 10)).setColor(255);
+    flb.setBarHeight(30);
+    flb.getCaptionLabel().set("Szűrő").setFont(createFont("Arial", 10)).setColor(255);
+    flb.setItemHeight(30);
+    flb.getValueLabel().setFont(createFont("Arial", 10)).setColor(255);
 
     
-    dpd.addItem("Napi eset", 0);
-    dpd.addItem("Napi eset (7 napos átlag)", 1);
-    dpd.addItem("Napi eset / 1M", 2);
-    dpd.addItem("Napi eset / 1M (7 napos átlag)", 3);
-    dpd.addItem("Összes eset", 4);
-    dpd.addItem("Összes eset / 1M", 5);
-    dpd.addItem("Napi elhunyt", 6);
-    dpd.addItem("Napi elhunyt (7 napos átlag)", 7);
-    dpd.addItem("Napi elhunyt / 1M", 8);
-    dpd.addItem("Napi elhunyt / 1M (7 napos átlag)", 9);
-    dpd.addItem("Összes elhunyt", 10);
-    dpd.addItem("Összes elhunyt / 1M", 11);
+    flb.addItem("Napi eset", 0);
+    flb.addItem("Napi eset (7 napos átlag)", 1);
+    flb.addItem("Napi eset / 1M", 2);
+    flb.addItem("Napi eset / 1M (7 napos átlag)", 3);
+    flb.addItem("Összes eset", 4);
+    flb.addItem("Összes eset / 1M", 5);
+    flb.addItem("Napi elhunyt", 6);
+    flb.addItem("Napi elhunyt (7 napos átlag)", 7);
+    flb.addItem("Napi elhunyt / 1M", 8);
+    flb.addItem("Napi elhunyt / 1M (7 napos átlag)", 9);
+    flb.addItem("Összes elhunyt", 10);
+    flb.addItem("Összes elhunyt / 1M", 11);
+
+    txt = cp5.addTextarea("txt")
+        .setColorValue(#FFFFFF)
+        .setSize(50, 30)
+        .setPosition(974, 480)
+        .setFont(createFont("Arial",12))
+        .setColorBackground(#002d5a)
+        .setLineHeight(14);
+
+    slb = cp5.addListBox("slistbox")
+         .setPosition(50, 50)
+         .setLabel("Kiválasztva:")
+         .setFont(createFont("Arial",12))
+         .setSize(120, 100)
+         .setItemHeight(30)
+         .setBarHeight(30);
     
+    btn = cp5.addButton("clear")
+        .setPosition(170, 50)
+        .setLabel("Törlés")
+        .setFont(createFont("Arial",12))
+        .setSize(70, 30)
+        .onClick(new CallbackListener() {
+          public void controlEvent(CallbackEvent theEvent) {
+            selectedCountries.clear();
+            slb.clear();
+          }
+        });
+
 }
 
 void calculateBounderValues(LocalDate date){
@@ -247,28 +281,24 @@ void changeFilterHandler(int numOfFilter){
 float calculatePercent(int numOfFilter, DataElement de){
   switch(numOfFilter){
     case 0:
-    label = str(de.getNewCases());
       return norm(
           de.getNewCases(), 
           colorMin, 
           colorMax
       );
     case 1:
-      label = str(de.getNewCasesSmoothed());
       return norm(
           de.getNewCasesSmoothed(), 
           colorMin, 
           colorMax
       );
     case 2:
-      label = str(de.getNewCasesPerMillion());
       return norm(
           de.getNewCasesPerMillion(), 
           colorMin, 
           colorMax
       );
     case 3:
-    label = str(de.getNewCasesSmoothedPerMillion());
       return norm(
           de.getNewCasesSmoothedPerMillion(), 
           colorMin, 
@@ -328,5 +358,13 @@ float calculatePercent(int numOfFilter, DataElement de){
           colorMin, 
           colorMax
       );
+  }
+}
+
+void selectCountryHandler(String countryID){
+  if(selectedCountries.size() < 2 && !selectedCountries.contains(countryID)){
+    selectedCountries.add(countryID);
+    slb.addItem(countryID, selectedCountries.size()-1);
+    slb.open();
   }
 }
