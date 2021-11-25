@@ -84,7 +84,7 @@ public class BounderValues {
                 isInit = true;
         }else{
             if(maxNewCases < nc) maxNewCases = nc;
-            if(maxNewCasesSmoothed < ncs) maxNewCases = ncs;
+            if(maxNewCasesSmoothed < ncs) maxNewCasesSmoothed = ncs;
             if(maxNewCasesPerMillion < ncpm) maxNewCasesPerMillion = ncpm;
             if(maxNewCasesSmoothedPerMillion < ncspm) maxNewCasesSmoothedPerMillion = ncspm;
             if(maxTotalCases < tc) maxTotalCases = tc;
