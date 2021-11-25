@@ -1,20 +1,16 @@
 public class BounderValues {
     private boolean isInit;
-    private int minNewCases;
-    private int minNewCasesPerMillion;
-    private int minTotalCases;
-    private int minTotalCasesPerMillion;
-    private int minNewDeaths;
-    private int minNewDeathsPerMillion;
-    private int minTotalDeaths;
-    private int minTotalDeathsPerMillion;
 
     private int maxNewCases;
+    private int maxNewCasesSmoothed;
     private int maxNewCasesPerMillion;
+    private int maxNewCasesSmoothedPerMillion;
     private int maxTotalCases;
     private int maxTotalCasesPerMillion;
     private int maxNewDeaths;
+    private int maxNewDeathsSmoothed;
     private int maxNewDeathsPerMillion;
+    private int maxNewDeathsSmoothedPerMillion;
     private int maxTotalDeaths;
     private int maxTotalDeathsPerMillion;
 
@@ -22,49 +18,82 @@ public class BounderValues {
         isInit = false;
     } 
 
-    public int getMinNewCases(){
-        return minNewCases;
-    }
-
     public int getMaxNewCases(){
         return maxNewCases;
     }
 
-    public int getMinNewCasesPerMillion(){
-        return minNewCasesPerMillion;
+    public int getMaxNewCasesSmoothed(){
+        return maxNewCasesSmoothed;
     }
 
     public int getMaxNewCasesPerMillion(){
         return maxNewCasesPerMillion;
     }
 
-    public void compateToCurrent(int nc, int ncpm, int tc, int tcpm, int nd, int ndpm, int td, int tdpm){
+    public int getMaxNewCasesSmoothedPerMillion(){
+        return maxNewCasesSmoothedPerMillion;
+    }
+
+    public int getMaxTotalCases(){
+        return maxTotalCases;
+    }
+
+    public int getMaxTotalCasesPerMillion(){
+        return maxTotalCasesPerMillion;
+    }
+
+    public int getMaxNewDeaths(){
+        return maxNewDeaths;
+    }
+
+    public int getMaxNewDeathsSmoothed(){
+        return maxNewDeathsSmoothed;
+    }
+
+    public int getMaxNewDeathsPerMillion(){
+        return maxNewDeathsPerMillion;
+    }
+    
+    public int getMaxNewDeathsSmoothedPerMillion(){
+        return maxNewDeathsSmoothedPerMillion;
+    }
+
+    public int getMaxTotalDeaths(){
+        return maxTotalDeaths;
+    }
+
+    public int getMaxTotalDeathsPerMillion(){
+        return maxTotalDeathsPerMillion;
+    }
+
+
+    public void compateToCurrent(int nc, int ncs, int ncpm, int ncspm, int tc, int tcpm, int nd, int nds, int ndpm, int ndspm, int td, int tdpm){
         if(!isInit){
-                minNewCases = maxNewCases = nc;
-                minNewCasesPerMillion = maxNewCasesPerMillion = ncpm;
-                minTotalCases = maxTotalCases = tc;
-                minTotalCasesPerMillion = maxTotalCasesPerMillion = tcpm;
-                minNewDeaths = maxNewDeaths = nd;
-                minNewDeathsPerMillion = maxNewDeathsPerMillion = ndpm;
-                minTotalDeaths = maxTotalDeaths = td;
-                minTotalDeathsPerMillion = maxTotalDeathsPerMillion = tdpm;
+                maxNewCases = nc;
+                maxNewCasesSmoothed = ncs;
+                maxNewCasesPerMillion = ncpm;
+                maxNewCasesSmoothedPerMillion = ncspm;
+                maxTotalCases = tc;
+                maxTotalCasesPerMillion = tcpm;
+                maxNewDeaths = nd;
+                maxNewDeathsSmoothed = nds;
+                maxNewDeathsPerMillion = ndpm;
+                maxNewDeathsSmoothedPerMillion = ndspm;
+                maxTotalDeaths = td;
+                maxTotalDeathsPerMillion = tdpm;
                 isInit = true;
         }else{
-            if(minNewCases > nc) minNewCases = nc;
             if(maxNewCases < nc) maxNewCases = nc;
-            if(minNewCasesPerMillion > ncpm) minNewCasesPerMillion = ncpm;
+            if(maxNewCasesSmoothed < ncs) maxNewCases = ncs;
             if(maxNewCasesPerMillion < ncpm) maxNewCasesPerMillion = ncpm;
-            if(minTotalCases > tc) minTotalCases = tc;
+            if(maxNewCasesSmoothedPerMillion < ncspm) maxNewCasesSmoothedPerMillion = ncspm;
             if(maxTotalCases < tc) maxTotalCases = tc;
-            if(minTotalCasesPerMillion > tcpm) minTotalCasesPerMillion = tcpm;
             if(maxTotalCasesPerMillion < tcpm) maxTotalCasesPerMillion = tcpm;
-            if(minNewDeaths > nd) minNewDeaths = nd;
             if(maxNewDeaths < nd) maxNewDeaths = nd;
-            if(minNewDeathsPerMillion > ndpm) minNewDeathsPerMillion = ndpm;
+            if(maxNewDeathsSmoothed < nds) maxNewDeathsSmoothed = nds;
             if(maxNewDeathsPerMillion < ndpm) maxNewDeathsPerMillion = ndpm;
-            if(minTotalDeaths > td) minTotalDeaths = td;
+            if(maxNewDeathsSmoothedPerMillion < ndspm) maxNewDeathsSmoothedPerMillion = ndspm;
             if(maxTotalDeaths < td) maxTotalDeaths = td;
-            if(minTotalDeathsPerMillion > tdpm) minTotalDeathsPerMillion = tdpm;
             if(maxTotalDeathsPerMillion < tdpm) maxTotalDeathsPerMillion = tdpm;
         }
     }

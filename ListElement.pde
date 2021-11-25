@@ -18,15 +18,6 @@ public class ListElement {
     public String getLocation() {
         return location;
     }
-    
-    /* public String getDataOnDate(LocalDate date) {
-        for (DataElement d : data) {
-            if (d.getDate().equals(date)) {
-                return location + " --> " + d.toString(); 
-            }
-        }
-        return location;
-    } */
 
     public DataElement getDataOnDate(LocalDate date) {
         for (DataElement d : data) {
@@ -34,7 +25,7 @@ public class ListElement {
                 return d;
             }
         }
-        return new DataElement(date, 0, 0, 0, 0, 0, 0, 0, 0);
+        return new DataElement(date, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     
 }
