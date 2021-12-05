@@ -172,15 +172,16 @@ public class Plot{
             for(int j = 0; j < numOfPoints; j++){
                 DataElement cd = l.getDataOnDate(minDate.plusDays(j));
                 int value = calculateValueToFilter(cd, selectedFilter);
-
-                float pointXPos = xPos + padding + (pointWidth * j);
-                float pointYPos = (yPos + (height * 2/3)) - (pointHeight * value);
-                
-                if(j != 0){
-                  line(prevX, prevY, pointXPos, pointYPos);
+                if(value >= 0){
+                  float pointXPos = xPos + padding + (pointWidth * j);
+                  float pointYPos = (yPos + (height * 2/3)) - (pointHeight * value);
+                  
+                  if(j != 0){
+                    line(prevX, prevY, pointXPos, pointYPos);
+                  }
+                  prevX = pointXPos;
+                  prevY = pointYPos;
                 }
-                prevX = pointXPos;
-                prevY = pointYPos;
             }
         }
 

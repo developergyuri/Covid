@@ -33,6 +33,8 @@ ArrayList<ListElement> selectedCountries = new ArrayList<>();
 Plot plt;
 //ArrayList<ListElement> tmp = new ArrayList<>();
 
+LinearGradient lg;
+
 void setup() {
     size(1366, 768);
     eu = loadShape("eu.svg");
@@ -40,11 +42,14 @@ void setup() {
     loadCovidData();
     addControllersToPanel();
     changeFilterHandler(selectedFilter);
-    plt = new Plot(0, 0, 780, 520);
+    plt = new Plot(0, 0, 760, 520);
+    lg = new LinearGradient(780, 0, 20, 520,#DC4250, #FFFFFF, 0);
 }
 
 void draw() {
     background(220);
+
+    lg.draw(colorMin, colorMax);
     
     shape(eu, 804, 0, 562, 520);
     smooth();
@@ -149,6 +154,7 @@ void addControllersToPanel(){
               theEvent.getController().setValueLabel(dateMin.plusDays(int(theEvent.getController().getValue())).toString());
               dateSelected = dateMin.plusDays(int(theEvent.getController().getValue()));
               calculateBounderValues(dateSelected);
+              changeFilterHandler(selectedFilter);
           }
        });
     
