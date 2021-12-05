@@ -164,7 +164,7 @@ void addControllersToPanel(){
 
     flb = cp5.addListBox("flistbox")
         .setPosition(804, 575)
-        .setSize(540, 200)
+        .setSize(540, 160)
         .setDefaultValue(3)
         .onChange(new CallbackListener() {
           public void controlEvent(CallbackEvent theEvent) {
@@ -201,7 +201,7 @@ void addControllersToPanel(){
         .setLineHeight(14);
 
     slb = cp5.addListBox("slistbox")
-         .setPosition(460, 540)
+         .setPosition(440, 540)
          .setLabel("Kiválasztva:")
          .setFont(createFont("Arial",12))
          .setSize(250, 250)
@@ -209,7 +209,7 @@ void addControllersToPanel(){
          .setBarHeight(30);
     
     btn = cp5.addButton("clear")
-        .setPosition(710, 540)
+        .setPosition(690, 540)
         .setLabel("Törlés")
         .setFont(createFont("Arial",12))
         .setSize(70, 30)
@@ -321,7 +321,7 @@ float calculatePercent(int numOfFilter, DataElement de){
 }
 
 void selectCountryHandler(String countryID){
-  if(selectedCountries.size() < 4 && !selectedCountries.contains(list.get(countryID))){
+  if(selectedCountries.size() < 5 && !selectedCountries.contains(list.get(countryID))){
     selectedCountries.add(list.get(countryID));
     slb.addItem(countryID, selectedCountries.size()-1);
     slb.open();

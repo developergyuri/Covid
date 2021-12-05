@@ -12,6 +12,8 @@ public class Plot{
     private LocalDate minDate = LocalDate.now();
     private BounderValues bv;
     private int padding = 20;
+    
+    private color[] colors = {#FF0000, #00FF00, #0000FF, #FFFF00, #FF00FF, #00FFFF, #000000};
 
     Plot(int x, int y, int w, int h){
         xPos = float(x);
@@ -112,7 +114,7 @@ public class Plot{
         // Koordinata rendszer
         rect(xPos, yPos, width, height);
         // Jelmagyarázat
-        rect(xPos, (yPos + height + 20), 250, list.size() * (padding * 2));
+        rect(xPos, (yPos + height + 20), 350, list.size() * (padding * 2));
         
         // Tengely
         strokeWeight(2);
@@ -152,12 +154,11 @@ public class Plot{
         int numOfPoints = int(ChronoUnit.DAYS.between(minDate, LocalDate.now()));
         float pointWidth = (width - 2 * padding) / numOfPoints;
         float pointHeight = (height * 2/3) / max;
-        
-                
+                        
         for (int i = 0; i < list.size(); i++) {
             ListElement l = list.get(i);
-            randomSeed(i);
-            stroke(random(255), random(255), random(255));
+
+            stroke(this.colors[i]);
             
             strokeWeight(2);
             line(padding, (yPos + height + (i + 1) * (padding * 2)), 75, (yPos + height + (i + 1) * (padding * 2)));
