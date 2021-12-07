@@ -7,7 +7,7 @@ PShape eu;
 
 Table table;
 HashMap<String, ListElement> list = new HashMap<String, ListElement>();
-String url = "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv";
+//String url = "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv";
 
 PShape currentCountry;
 
@@ -91,8 +91,8 @@ void draw() {
 }
 
 void loadCovidData(){
-    //table = loadTable("owid-covid-data.csv", "header");
-    table = loadTable(url, "header");
+    table = loadTable("owid-covid-data.csv", "header");
+    //table = loadTable(url, "header");
     
     for (TableRow row : table.rows()) {
         if (row.getString("continent").equals("Europe")) {
@@ -149,6 +149,7 @@ void addControllersToPanel(){
        .setValue(int(ChronoUnit.DAYS.between(dateMin, dateMax)))
        .setRange(0, int(ChronoUnit.DAYS.between(dateMin, dateMax)))
        .setScrollSensitivity(0.01)
+       .setSliderMode(Slider.FLEXIBLE)
        .onChange(new CallbackListener() {
           public void controlEvent(CallbackEvent theEvent) {
               theEvent.getController().setValueLabel(dateMin.plusDays(int(theEvent.getController().getValue())).toString());

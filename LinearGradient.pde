@@ -31,7 +31,7 @@ public class LinearGradient{
                 line(this.xPos, i, this.xPos + this.width, i); 
             }
 
-            fill(0);
+            fill(255);
             textSize(16);
 
             pushMatrix();
@@ -40,6 +40,7 @@ public class LinearGradient{
             text(maxStr, maxStr.length() * -10, 16);
             popMatrix();
 
+            fill(0);
             pushMatrix();
             translate(this.xPos, this.yPos + this.height);
             rotate(-HALF_PI);
